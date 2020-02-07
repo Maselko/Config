@@ -1,2 +1,2 @@
-# config
-Configuration files backup.
+# Config
+The backup for all my config files.
