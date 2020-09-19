@@ -8,6 +8,7 @@
 "
 
     let mapleader = " "
+    language en_GB.UTF-8
 
 " Plugins to blnd them all  ===========================================
     call plug#begin('~/.vim/plugged')
@@ -17,16 +18,20 @@
     Plug 'drewtempelmeyer/palenight.vim'
     Plug 'joshdick/onedark.vim'
     Plug 'junegunn/goyo.vim'
+    Plug 'LaTeX-Box-Team/LaTeX-Box'
     Plug 'LukeSmithxyz/vimling'
+    Plug 'severin-lemaignan/vim-minimap'
+    Plug 'tpope/vim-eunuch'
     Plug 'tpope/vim-vividchalk'
     Plug 'vimwiki/vimwiki'
+    Plug 'zeekay/vim-color-switch'
     call plug#end()
 
 
 "= Basic Stuff ========================================================
     set nocompatible
     syntax on
-    set guifont=InconsolataLGC\ 11    " font on gui
+    set guifont=InconsolataLGC:h12    " font on gui
     set linespace=0                   " font space size
     set encoding=utf-8                " encoding
     set number relativenumber         " sets numbers on left
@@ -44,16 +49,15 @@
 
 "= Mappings ===========================================================
 " To keep my hands still healthy
-    noremap! ` <Esc>l
     noremap ; :
     map ;; ;
 
 " Make easy access to ~/.vimrc
     nnoremap <C-^> :e $MYVIMRC<CR>
 
-" The autocompletion stuff (Insert Mode only)
-    imap <C-j> <C-n>
-    imap <C-k> <C-p>
+" The autocompletion stuff (Insert Mode only, needs to be in polish pro)
+    imap £ <C-j>
+    imap § <C-x><C-O>
 
 " Shortcuts split navigation (Normal Mode only)
     nmap <C-h> <C-w>h
@@ -67,8 +71,8 @@
     vmap <C-k> <C-w>-
     vmap <C-l> <C-w>>
 
-" Run Vimcomp to compile the program
-    map <leader>c :w! \| !./Tools/vim/vimcom.sh <c-r><CR>
+" Run comp.sh to compile the program
+    map <leader>c :w! \| term ./Tools/comp.sh %<CR>
 
 " File manager opener
     nnoremap <leader>e :Explore ~/<CR>
@@ -93,40 +97,63 @@
 " Copy to clipboard
     vnoremap <leader>y "+y
 
+" Auto closing brackets "
+    inoremap " ""<left>
+    inoremap ' ''<left>
+    inoremap ( ()<left>
+    inoremap [ []<left>
+    inoremap { {}<left>
+    inoremap {<CR> {<CR>}<ESC>O
+    inoremap {;<CR> {<CR>};<ESC>O
+
 
 "= Other Settings =====================================================
+" Filetype plugin on
+    filetype plugin on
+
 " To prevent moving cursor when Esc is pressed
     inoremap <silent> <Esc> <C-O>:stopinsert<CR>
 
 " Autocomplitation
+    set tags+=~/.vim/systags
     set wildmode=longest,list,full
+    autocmd FileType * setlocal omnifunc=syntaxcomplete#Complete
+    set completeopt=menuone
+    set shortmess+=c
+
+" For latex tipesetting
+    au FileType tex nmap <buffer> <C-T> :!latexmk -pdf "%"
+    au FileType tex nmap <buffer> T :!open -a Skim %<.pdf %<.pdf<CR><CR>
 
 " Disable autocommenting
-    autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+    au FileType * setl formatoptions-=c formatoptions-=r formatoptions-=o
 
-" Splits open at the bottom and right, which is non-retarded, unlike vim default
+" Change Fortran tab sizes
+
+
+" Splits open at the bottom and right, which is non-retarded, unlike default
     set splitbelow splitright
 
 " Automatically deletes all traling whitespaces
     au BufWritePre * %s/\s\+$//e
 
 " Automatically change color for texts
-    au BufReadPost,BufNewFile *.md,*.txt,*.tex,*.bib colo TeXdarktheme
-
-" automatically do :so ~/.vimrc
-    autocmd BufWritePost .vimrc source $MYVIMRC
+    au BufReadPost,BufNewFile *.txt,*.tex,*.bib colo TeXdarktheme
 
 " Fuzzy file finder(ish)
     set path+=**
 
 " file browsing
-    filetype plugin on
     let g:netrw_banner=0        " disable annoying banner
     let g:netrw_browse_split=0  " open in prior window
     let g:netrw_altv=1          " open splits to the right
     let g:netrw_liststyle=3     " tree view
     let g:netrw_list_hide=netrw_gitignore#Hide()
     let g:netrw_list_hide.=',\(^\|\s\s\)\zs\.\S\+'
+
+" Rel[oad] new .vimrc
+    command Rel execute "so $MYVIMRC"
+    command Reload execute "so $MYVIMRC"
 
 
 "= STATUSLINE =========================================================
@@ -156,17 +183,17 @@
 " Automatically change the statusline color depending on mode
     function! ChangeStatuslineColor()
 	if (mode() =~# '\v(n|no)')
-	    exe 'hi! StatusLine ctermbg=015 ctermfg=002 guibg=green4 guifg=white'
+	    exe 'hi! StatusLine ctermbg=002 ctermfg=015 guibg=green4 guifg=white'
 	elseif (mode() =~# '\v(v|V)' || g:currentmode[mode()] ==# 'V·BLOCK ')
-	    exe 'hi! StatusLine ctermbg=000 ctermfg=015 guibg=white guifg=black'
+	    exe 'hi! StatusLine ctermbg=015 ctermfg=000 guibg=white guifg=black'
 	elseif (mode() =~# 'i')
-	    exe 'hi! StatusLine ctermbg=015 ctermfg=006 guibg=DeepSkyBlue guifg=white'
+	    exe 'hi! StatusLine ctermbg=006 ctermfg=015 guibg=DeepSkyBlue guifg=white'
 	elseif (mode() =~# 'R')
-	    exe 'hi! StatusLine ctermbg=015 ctermfg=009 guibg=red2 guifg=white'
+	    exe 'hi! StatusLine ctermbg=009 ctermfg=015 guibg=red2 guifg=white'
 	elseif (get(g:currentmode, mode(), '') ==# 't')
-	    exe 'hi! StatusLine ctermbg=015 ctermfg=000 guibg=black guifg=white'
+	    exe 'hi! StatusLine ctermbg=000 ctermfg=015 guibg=black guifg=white'
 	else
-	    exe 'hi! StatusLine ctermbg=015 ctermfg=003 guibg=goldenrod guifg=white'
+	    exe 'hi! StatusLine ctermbg=003 ctermfg=015 guibg=goldenrod guifg=white'
 	endif
 	return ''
     endfunction
@@ -191,6 +218,7 @@
 	return bytes . 'B '
       endif
     endfunction
+
     set laststatus=2
     set statusline=
     set statusline+=%{ChangeStatuslineColor()}     " Changing the statusline colour

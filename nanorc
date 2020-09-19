@@ -1,0 +1,14 @@
+set tabsize 4
+set tabstospaces
+set autoindent
+set breaklonglines
+set trimblanks
+set linenumbers
+set brackets ""')>]}"
+set titlecolor bold,white,purple
+set keycolor bold,purple
+set numbercolor purple
+set mouse
+set guidestripe 73
+set stripecolor blue
+include /usr/local/share/nano/*.nanorc
