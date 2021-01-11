@@ -16,10 +16,12 @@
     Plug 'altercation/solarized'
     Plug 'arcticicestudio/nord-vim'
     Plug 'drewtempelmeyer/palenight.vim'
+    Plug 'effkreeftmeijer/vim-dim'
+    Plug 'jeffkreeftmeijer/vim-dim'
     Plug 'joshdick/onedark.vim'
     Plug 'junegunn/goyo.vim'
-    Plug 'LaTeX-Box-Team/LaTeX-Box'
-    Plug 'LukeSmithxyz/vimling'
+    Plug 'lervag/vimtex'
+    Plug 'noahfrederick/vim-noctu'
     Plug 'severin-lemaignan/vim-minimap'
     Plug 'tpope/vim-eunuch'
     Plug 'tpope/vim-vividchalk'
@@ -28,6 +30,7 @@
     call plug#end()
 
 
+    let g:bibliography = '/Users/sebastian/Desktop/bib.bib'
 "= Basic Stuff ========================================================
     set nocompatible
     syntax on
@@ -43,7 +46,7 @@
     if has("gui_running")             " colorschemes
        colo Chester                   " gui colour
     else
-       colo vividchalk                " terminal colour
+       colo default	              " terminal colour
     endif
 
 
@@ -121,10 +124,6 @@
     set completeopt=menuone
     set shortmess+=c
 
-" For latex tipesetting
-    au FileType tex nmap <buffer> <C-T> :!latexmk -pdf "%"
-    au FileType tex nmap <buffer> T :!open -a Skim %<.pdf %<.pdf<CR><CR>
-
 " Disable autocommenting
     au FileType * setl formatoptions-=c formatoptions-=r formatoptions-=o
 
@@ -137,8 +136,13 @@
 " Automatically deletes all traling whitespaces
     au BufWritePre * %s/\s\+$//e
 
-" Automatically change color for texts
-    au BufReadPost,BufNewFile *.txt,*.tex,*.bib colo TeXdarktheme
+" TeX, LaTeX and BibTeX file stuff
+    au BufReadPost,BufNewFile,BufWritePost *.tex,*.bib colo TeXdarktheme
+    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>t :VimtexCompile<CR>
+    au VimLeave *tex VimtexClean
+    let g:vimtex_flavor='latex'
+    let g:vimtex_view_method='skim'
+    let g:vimtex_quickfix_mode=0
 
 " Fuzzy file finder(ish)
     set path+=**
