@@ -178,11 +178,12 @@ if (g:env =~# 'DARWIN')
 
 "-- Other Settings -----------------------------------------------------
 " TeX and LaTeX stuff
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>t :exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'" | redraw
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>b :exe "!bibtex '%:p:r.aux'" | redraw
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>r :exe "!xpdf '%:p:r.pdf' &" | redraw
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>c :exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'; &" | redraw
-    au VimLeave *.tex :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'" | redraw
+    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>t :exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'"<CR><CR>
+    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>b :exe "!bibtex '%:p:r.aux'"<CR><CR>
+    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>r :exe "!skim '%:p:r.pdf' &"<CR><CR>
+    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>c :exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';skim '%:p:r.pdf'&"<CR><CR>
+    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>d :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
+    au VimLeave *.tex :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
 
 "= Windows =============================================================
 elseif (g:env =~# 'WINDOWS')
@@ -225,11 +226,12 @@ elseif (g:env =~# 'LINUX')
 
 "-- Other Settings -----------------------------------------------------
 " TeX and LaTeX stuff
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>t :exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'" | redraw
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>b :exe "!bibtex '%:p:r.aux'" | redraw
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>r :exe "!xpdf '%:p:r.pdf' &" | redraw
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>c :exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'; &" | redraw
-    au VimLeave *.tex :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'" | redraw
+    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>t :exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'"<CR><CR>
+    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>b :exe "!bibtex '%:p:r.aux'"<CR><CR>
+    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>r :exe "!xpdf '%:p:r.pdf' &"<CR><CR>
+    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>c :exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';xpdf '%:p:r.pdf'&"<CR><CR>
+    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>d :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
+    au VimLeave *.tex :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
 
 "= BSD =================================================================
 
