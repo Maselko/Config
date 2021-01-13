@@ -57,9 +57,10 @@
     set smarttab
     set softtabstop=4
     if has("gui_running")             " colorschemes
-       colo Chester                   " gui colour
-       set lines=42 columns=78
-       set guioptions=
+	colo Chester                  " gui colour
+        au BufReadPost,BufNewFile *.tex,*.bib colo TeXdarktheme
+        command Tex colo TeXdarktheme
+        command Kod colo Chester
     else
        colo vividchalk                " terminal colour
     endif
@@ -115,7 +116,7 @@
     inoremap {;<CR> {<CR>};<ESC>O
 
 " Goyo plugin to make text readable
-    map <leader>r :Goyo \| set linebreak<CR>
+    map <leader>g :Goyo \| set linebreak<CR>
 
 
 "-- Other Settings -----------------------------------------------------
@@ -137,7 +138,10 @@
     au BufReadPost,BufNewFile,BufWritePost *.f90 set softtabstop=2
 
 " TeX and LaTeX stuff
-    au BufReadPost,BufNewFile,BufWritePost *.tex,*.bib colo TeXdarktheme
+    au BufReadPost,BufNewFile *.tex,*.bib colo TeXdarktheme
+    command Tex colo TeXdarktheme
+    command Kod colo Chester
+
 
 " Splits open at the bottom and right, which is non-retarded
     set splitbelow splitright
@@ -190,10 +194,10 @@ elseif (g:env =~# 'WINDOWS')
 "-- General ------------------------------------------------------------
     set guifont=InconsolataLGC:h11    " font on gui
     if has("gui_running")             " colorschemes
-       set lines=42 columns=81
-       set guioptions=
+	set lines=42 columns=81
+	set guioptions=
     else
-       colo vividchalk                " terminal colour
+	colo vividchalk                " terminal colour
     endif
 
 "-- Mappings -----------------------------------------------------------
