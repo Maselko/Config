@@ -13,7 +13,7 @@ HISTFILE="$HOME/.ksh_history"
 HISTSIZE=1000
 
 # Arrow keys!!!
-set -o emacs
+set -o vi
 
 alias __A=
 alias __B=
@@ -27,11 +27,11 @@ alias _D=
 
 #Header:
 lastlogin=$(last -1 -R  $USER | head -n -1 | cut -c 23-| cut -c -15)
-echo "${USER} logged in at $lastlogin, tty=$(tty | sed -e "s:/dev/::")"
+echo "  ${USER} logged in at $lastlogin, tty=$(tty | sed -e "s:/dev/::")"
 ksh --version
 echo "------------------------------------------------------------------------"
 if [ -z "$VISUAL" -a -z "$EDITOR" ]; then
-	set -o emacs
+	set -o vi
 fi
 
 #PLAN 9 stuff
@@ -39,17 +39,17 @@ PLAN9=/usr/local/plan9 export PLAN9
 PATH=$PATH:$PLAN9/bin export PATH
 
 # Making prompt
-PS1="$(print -n "[\033[1;33m${USER}\033[00m:";if [[ "${PWD#$HOME}" != "$PWD" ]] then; print -n "\033[1;36m~${PWD#$HOME}"; else; print -n "\033[1;36m$PWD";fi;print -n "\033[00m]$ ")"
+PS1="$(print -n "[\033[1;36m${USER}\033[00m:";if [[ "${PWD#$HOME}" != "$PWD" ]] then; print -n "\033[1;33m~${PWD#$HOME}"; else; print -n "\033[1;33m$PWD";fi;print -n "\033[00m]$ ")"
 
 function _cd {
 	\cd "$@"
 	PS1=$(
-	print -n "[\033[1;33m${USER}\033[00m:"
+	print -n "[\033[1;36m${USER}\033[00m:"
 	if [[ "${PWD#$HOME}" != "$PWD" ]]
 	then
-		print -n "\033[1;36m~${PWD#$HOME}"
+		print -n "\033[1;33m~${PWD#$HOME}"
 	else
-		print -n "\033[1;36m$PWD"
+		print -n "\033[1;33m$PWD"
 	fi
 	print -n "\033[00m]$ "
 	)
@@ -58,3 +58,7 @@ function _cd {
 alias cd=_cd
 
 cd "$PWD"
+alias chdir="cd /mnt/c/Users/tamon"
+alias ls="ls --color=auto"
+alias ll="ls -lah --color=auto"
+
