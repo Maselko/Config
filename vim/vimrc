@@ -12,22 +12,17 @@
 
 "= Plugins to blnd them all ============================================
     call plug#begin('~/.vim/plugged')
-    Plug 'acarapetis/vim-colors-github'
-    Plug 'altercation/solarized'
-    Plug 'arcticicestudio/nord-vim'
     Plug 'drewtempelmeyer/palenight.vim'
     Plug 'etdev/vim-hexcolor'
-    Plug 'joshdick/onedark.vim'
     Plug 'junegunn/goyo.vim'
     Plug 'severin-lemaignan/vim-minimap'
     Plug 'tpope/vim-eunuch'
     Plug 'tpope/vim-vividchalk'
     Plug 'vimwiki/vimwiki'
-    Plug 'zeekay/vim-color-switch'
     call plug#end()
 
 
-"= Cross-Platformation =================================================
+"= Cross-Platformisation ===============================================
 " Because I hate rewriting .vimrc every single time
     function! WhichEnv() abort
 	if exists('g:env')
@@ -59,6 +54,7 @@
     if has("gui_running")             " colorschemes
 	colo Chester                  " gui colour
         au BufReadPost,BufNewFile *.tex,*.bib colo TeXdarktheme
+	au BufReadPost,BufNewFile *.tex,*.bib set wrap linebreak
         command Tex colo TeXdarktheme
         command Kod colo Chester
     else
@@ -100,23 +96,20 @@
 " Paste from clipboard
     map <leader>p "+p
 
-" Terminal for <leader> + t
-    map <leader>t :ter<CR>
-
 " Copy to clipboard
     vnoremap <leader>y "+y
 
 " Auto closing brackets "
-    inoremap " ""<left>
-    inoremap ' ''<left>
+
     inoremap ( ()<left>
     inoremap [ []<left>
     inoremap { {}<left>
-    inoremap {<CR> {<CR>}<ESC>O
-    inoremap {;<CR> {<CR>};<ESC>O
+    inoremap ' ''<left>
+    inoremap " ""<left>
 
 " Goyo plugin to make text readable
-    map <leader>g :Goyo \| set linebreak<CR>
+    map <leader>g :Goyo \| set linebreak\| set relativenumber\| set number<CR>
+    let g:goyo_height=90
 
 
 "-- Other Settings -----------------------------------------------------
@@ -136,12 +129,6 @@
 
 " Change Fortran tab sizes
     au BufReadPost,BufNewFile,BufWritePost *.f90 set softtabstop=2
-
-" TeX and LaTeX stuff
-    au BufReadPost,BufNewFile *.tex,*.bib colo TeXdarktheme
-    command Tex colo TeXdarktheme
-    command Kod colo Chester
-
 
 " Splits open at the bottom and right, which is non-retarded
     set splitbelow splitright
@@ -179,20 +166,27 @@ if (g:env =~# 'DARWIN')
 " The autocompletation stuff (Insert Mode, Needs to be in polish-pro)
     imap £ <C-j>
     imap § <C-x><C-O>
+" Terminal for <leader> + t
+    map <leader>t :ter<CR>
 
 "-- Other Settings -----------------------------------------------------
 " TeX and LaTeX stuff
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>t :exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'"<CR><CR>
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>b :exe "!bibtex '%:p:r.aux'"<CR><CR>
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>r :exe "!skim '%:p:r.pdf' &"<CR><CR>
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>c :exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';skim '%:p:r.pdf'&"<CR><CR>
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>d :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
-    au VimLeave *.tex :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
+    au BufReadPost,BufNewFile *.tex nmap <leader>t :w <bar> exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'"<CR><CR>
+    au BufReadPost,BufNewFile *.tex nmap <leader>b :exe "!bibtex '%:p:r.aux'"<CR><CR>
+    au BufReadPost,BufNewFile *.tex nmap <leader>r :exe "!skim '%:p:r.pdf' &"<CR><CR>
+    au BufReadPost,BufNewFile *.tex nmap <leader>c :w <bar> exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';skim '%:p:r.pdf'&"<CR><CR>
+    au BufReadPost,BufNewFile *.tex nmap <leader>d :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
+    au BufReadPost,BufNewFile *.tex command TC :!texcount "%:p"
+    au BufReadPost,BufNewFile *.tex inoremap $ $$<left>
+    au BufReadPost,BufNewFile *.tex inoremap { []<left>
+    au BufReadPost,BufNewFile *.tex inoremap [ {}<left>
 
-"= Windows =============================================================
+
+"= Binbows =============================================================
 elseif (g:env =~# 'WINDOWS')
 "-- General ------------------------------------------------------------
     set guifont=InconsolataLGC:h11    " font on gui
+    set pythonthreedll=python39.dll
     if has("gui_running")             " colorschemes
 	set lines=42 columns=81
 	set guioptions=
@@ -204,14 +198,27 @@ elseif (g:env =~# 'WINDOWS')
 " The autocompletion stuff
     imap ¬ <C-j>
     imap ` <C-x><C-O>
+    " Disable these keys. I have seen too many help pages...
+    for key in ['<F1>', '<F15>']  " add keys to disable here
+	exec 'cnoremap' key '<Nop>'
+    	exec 'inoremap' key '<Nop>'
+    	exec 'nnoremap' key '<Nop>'
+    	exec 'vnoremap' key '<Nop>'
+    endfor
+" Terminal for <leader> + t
+    map <leader>t :ter powershell<CR>
 
 "-- Other Settings -----------------------------------------------------
 " TeX and LaTeX stuff
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>t :!start cmd /c pdflatex "%:p"<CR>
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>b :!start cmd /c bibtex "%:p:r.aux"<CR>
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>r :!start cmd /c mupdf "%:p:r.pdf"<CR>
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>c :!start cmd /c pdflatex "%:p" & bibtex "%:p:r.aux" & pdflatex "%:p" & pdflatex "%:p"<CR> & mupdf "%:p:r.pdf"<CR>
-
+    au BufReadPost,BufNewFile *.tex nmap <leader>t :w <bar> !start cmd /c pdflatex -aux-directory="%:p:h" -output-directory="%:p:h" "%:p" & taskkill /IM "mupdf.exe" & mupdf -C D0C8B5 "%:p:r.pdf"<CR><CR>
+    au BufReadPost,BufNewFile *.tex nmap <leader>b :!start cmd /c bibtex "%:p:r.aux"<CR><CR>
+    au BufReadPost,BufNewFile *.tex nmap <leader>r :!start cmd /c taskkill /IM "mupdf.exe" & mupdf -C D0C8B5 "%:p:r.pdf"<CR><CR>
+    au BufReadPost,BufNewFile *.tex nmap <leader>c :w <bar> !start cmd /c pdflatex -aux-directory="%:p:h" -output-directory="%:p:h" "%:p" & bibtex "%:p:r.aux" & pdflatex -aux-directory="%:p:h" -output-directory="%:p:h" "%:p" & pdflatex -aux-directory="%:p:h" -output-directory="%:p:h" "%:p" & taskkill /IM "mupdf.exe" & mupdf -C D0C8B5 "%:p:r.pdf"<CR><CR>
+    au BufReadPost,BufNewFile *.tex nmap <leader>d :!start cmd /c del "%:p:r.aux" & del "%:p:r.bbl" & del "%:p:r.blg" & del "%:p:r.lof" & del "%:p:r.log" & del "%:p:r.lot" & del "%:p:r.out" & del "%:p:r.synctex.gz" & del "%:p:r.toc"<CR><CR>
+    au BufReadPost,BufNewFile *.tex command TC :!texcount "%:p"
+    au BufReadPost,BufNewFile *.tex inoremap $ $$<left>
+    au BufReadPost,BufNewFile *.tex inoremap { []<left>
+    au BufReadPost,BufNewFile *.tex inoremap [ {}<left>
 
 "= Linux ===============================================================
 elseif (g:env =~# 'LINUX')
@@ -223,6 +230,8 @@ elseif (g:env =~# 'LINUX')
     else
        colo default                " terminal colour
     endif
+" Terminal for <leader> + t
+    map <leader>t :ter<CR>
 
 "-- Mappings -----------------------------------------------------------
     imap ¬ <C-j>
@@ -230,12 +239,16 @@ elseif (g:env =~# 'LINUX')
 
 "-- Other Settings -----------------------------------------------------
 " TeX and LaTeX stuff
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>t :exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'"<CR><CR>
+    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>t :w <bar> exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'"<CR><CR>
     au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>b :exe "!bibtex '%:p:r.aux'"<CR><CR>
     au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>r :exe "!xpdf '%:p:r.pdf' &"<CR><CR>
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>c :exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';xpdf '%:p:r.pdf'&"<CR><CR>
+    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>c :w <bar> exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';xpdf '%:p:r.pdf'&"<CR><CR>
     au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>d :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
-    au VimLeave *.tex :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
+    au BufReadPost,BufNewFile *.tex command TC :!texcount "%:p"
+    au BufReadPost,BufNewFile *.tex inoremap $ $$<left>
+    au BufReadPost,BufNewFile *.tex inoremap { []<left>
+    au BufReadPost,BufNewFile *.tex inoremap [ {}<left>
+
 
 "= BSD =================================================================
 
