@@ -98,10 +98,10 @@
 
 " Copy to clipboard
     vnoremap <leader>y "+y
+    vnoremap <leader> c<ESC>"+p
+    imap <C-v> <ESC>"+pa
 
 " Auto closing brackets "
-
-    inoremap ( ()<left>
     inoremap [ []<left>
     inoremap { {}<left>
     inoremap ' ''<left>
@@ -127,9 +127,6 @@
 " Disable autocommenting
     au FileType * setl formatoptions-=c formatoptions-=r formatoptions-=o
 
-" Change Fortran tab sizes
-    au BufReadPost,BufNewFile,BufWritePost *.f90 set softtabstop=2
-
 " Splits open at the bottom and right, which is non-retarded
     set splitbelow splitright
 
@@ -149,6 +146,9 @@
 
 " Rel[oad] new .vimrc
     command Rel execute "so $MYVIMRC"
+
+" Autocomplete \begin \end for LaTeX
+    au BufReadPost,BufNewFile *.tex nmap <leader>\ Yp0lceend<ESC>ko
 
 
 "= Macos ===============================================================

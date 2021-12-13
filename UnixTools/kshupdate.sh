@@ -14,17 +14,24 @@ else
         gitoutput=$(git pull|wc -m)
         if (( $gitoutput==20 ));
         then
-	   echo 'It is already up to date if it was installed correctly.'
+	    echo 'It is already up to date if it was installed correctly.'
         else
-	   echo 'Fetching updates...'
-	   wait
-    	   rm -rf ~/ksh/arch
-    	   echo 'Compiling...'
-    	   bin/package make
-    	   wait
-    	   echo 'Compiling has been completed. Please change shell by using "chsh -s"'
-    	   echo 'command to change the shall to other shall than ksh before instalation'
+	    echo 'Fetching updates...'
+	    wait
+	    echo ''
         fi
+	echo 'Do you want to compile new verison? [[y]/n]'
+	read copt
+	if [ $copt = "y" -o $copt = "Y" ];
+	then
+	    echo 'Compiling...'
+    		rm -rf ~/ksh/arch
+    		bin/package make
+    		wait
+		echo ''
+    		echo 'Compiling has been completed. Please change shell by using "chsh -s"'
+    		echo 'command to change the shall to other shall than ksh before instalation'
+	fi
     elif [ $1 = '-i' ];
     then
 	if [ $SHELL = '/usr/local/bin/ksh' ];

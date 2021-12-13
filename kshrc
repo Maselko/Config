@@ -65,7 +65,16 @@ function _cd {
 alias cd=_cd
 
 cd "$PWD"
-alias kshupdate="/home/sebastian/Tools/kshupdate.sh"
 alias chdir="cd $WINHOME"
+alias kshupdate="/home/sebastian/Tools/kshupdate.sh"
 alias ls="ls --color=auto"
 alias ll="ls -lah --color=auto"
+alias mastermind="/home/sebastian/Tools/mastermind"
+alias make="bmake"
+alias remake="bmake clean; bmake"
+# After this, tmux is propperly becomes vim
+alias :q="exit"
+alias :vsp="tmux splitw -h -p 50"
+alias :sp="tmux splitw -v -p 50"
+alias :e="tmux new-window"
+alias :b="tmux select-window -t"
