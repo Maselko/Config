@@ -6,24 +6,199 @@
 "
 " of Sebastian T. Haściłowicz
 "
-
+"= Contents ============================================================
+" 1. Global
+"   - Plugins
+"   - General
+"   - Mappings
+" 2. Filetype Dependent & Snippets
+" 3. Plugin stuff
+" 4. Platform Dependent
+" 5. Statusbar
+"
+"= 1.Global ============================================================
     let mapleader = " "
     language en_GB.UTF-8
 
-"= Plugins to blnd them all ============================================
+"-- Plugins ------------------------------------------------------------
     call plug#begin('~/.vim/plugged')
-    Plug 'drewtempelmeyer/palenight.vim'
-    Plug 'etdev/vim-hexcolor'
-    Plug 'junegunn/goyo.vim'
-    Plug 'severin-lemaignan/vim-minimap'
-    Plug 'tpope/vim-eunuch'
-    Plug 'tpope/vim-vividchalk'
-    Plug 'vimwiki/vimwiki'
+        Plug 'junegunn/goyo.vim'
+        Plug 'vimwiki/vimwiki'
     call plug#end()
 
+"-- General ------------------------------------------------------------
+    set nocompatible
+    filetype plugin on
+    syntax on
+    set belloff=all
+    set linespace=0			" font space size
+    set encoding=utf-8                	" encoding
+    set number relativenumber         	" sets numbers on left
+    set foldmethod=manual
+    set noexpandtab
+    set backspace=2
+    set backspace=indent,eol,start
+    set shiftwidth=4
+    set autoindent
+    set smartindent
+    set smarttab
+    set softtabstop=4
+  " Set correct colorscheme
+    if has("gui_running")
+	colo Chester                  	" gui colour
+        au BufReadPost,BufNewFile *.tex,*.bib colo TeXdarktheme
+	au BufReadPost,BufNewFile *.tex,*.bib set wrap linebreak
+        au BufLeave *.tex,*.bib colo Chester
+        command Tex colo TeXdarktheme
+        command Kod colo Chester
+    else
+       colo delek			" terminal colour
+    endif
+  " Autocomplitation
+    set tags+=~/.vim/systags
+    set wildmode=longest,list,full
+    autocmd FileType * setlocal omnifunc=syntaxcomplete#Complete
+    set completeopt=menuone
+    set shortmess+=c
+  " Disable autocommenting
+    au FileType * setl formatoptions-=c formatoptions-=r formatoptions-=o
+  " Splits open at the bottom and right, which is non-retarded
+    set splitbelow splitright
+  " Automatically deletes all traling whitespaces
+    au BufWritePre * %s/\s\+$//e
+  " Fuzzy file finder(-ish)
+    set path+=**
+  " Load folds if exists
+    au BufWinEnter *.* silent loadview
+  " file browsing
+    let g:netrw_banner=0        " disable annoying banner
+    let g:netrw_browse_split=0  " open in prior window
+    let g:netrw_altv=1          " open splits to the right
+    let g:netrw_liststyle=3     " tree view
+    let g:netrw_list_hide=netrw_gitignore#Hide()
+    let g:netrw_list_hide.=',\(^\|\s\s\)\zs\.\S\+'
+  " tweak make to get nice output
+    autocmd QuickFixCmdPost [^l]* copen
+    autocmd QuickFixCmdPost l* copen
+  " Rel[oad] new .vimrc
+    command Rel execute "so $MYVIMRC"
 
-"= Cross-Platformisation ===============================================
-" Because I hate rewriting .vimrc every single time
+"-- Mappings -----------------------------------------------------------
+  " To keep my hands healthy
+    noremap ; :
+    map ;; ;
+  " Make easy access to ~/.vimrc
+    nnoremap <C-^> :e $MYVIMRC<CR>
+  " Shortcuts split navigation (Normal Mode only)
+    nmap <C-h> <C-w>h
+    nmap <C-j> <C-w>j
+    nmap <C-k> <C-w>k
+    nmap <C-l> <C-w>l
+  " Resize split screen (Visual Mode only)
+    vmap <C-h> <C-w><
+    vmap <C-j> <C-w>+
+    vmap <C-k> <C-w>-
+    vmap <C-l> <C-w>>
+  " netrw file manager opener
+    nnoremap <leader>e :Explore <CR>
+    nmap <leader>fm :Vexplore <CR>
+  " Toggle 72 character line by pressing <leader> + l
+    nnoremap <leader>l :execute "set colorcolumn=" .
+		\ (&colorcolumn == "" ? "73" : "")<CR>
+  " Spell-check set to <leader> + o, 'o' for 'Orthography'
+    nmap <leader>oe :setlocal spell! spelllang=en_gb<CR>
+    nmap <leader>op :setlocal spell! spelllang=pl<CR>
+  " Copy to clipboard
+    vnoremap <leader>y "+y
+    vnoremap <leader> c<ESC>"+p
+    imap <C-v> <ESC>"+pa
+  " Paste from clipboard
+    map <leader>p "+p
+  " Auto closing brackets
+    inoremap ( ()<Esc>i
+    inoremap [ []<Esc>i
+    inoremap { {}<Esc>i
+    inoremap {<CR> {<CR>}<ESC>O
+    inoremap {;<CR> {<CR>};<ESC>O
+  " Auto closing quotes with 3 modes.
+  "	0   :	Does not close
+  " 	1   :	English writing. Does not close '
+  " 	2   :	Coding. Closes everything.
+  " Yepp, writing single " in vimrc is painful.
+    function! QuotesToggle(arg)
+	if a:arg==2
+	    inoremap ' ''<Esc>i
+    	    inoremap " ""<Esc>i
+	elseif a:arg==1
+	    iunmap '
+    	    inoremap " ""<Esc>i
+	else
+	    iunmap '
+    	    iunmap "
+	endif
+    endfunction
+  " By by default autoclosing quotes is in mode 2
+    call QuotesToggle(2)
+    nmap <leader><leader>" :call QuotesToggle(2)<CR>
+    nmap <leader>" :call QuotesToggle(1)<CR>
+    nmap <leader>' :call QuotesToggle(0)<CR>
+  " Add quotes around visually selected text
+    vnoremap <leader>' <Esc>`>a'<Esc>`<i'<Esc>
+    vnoremap <leader>" <Esc>`>a"<Esc>`<i"<Esc>
+  " Save folding information
+    nmap zw :mkview
+
+"= 2.Filetype Dependent & Snippets =====================================
+"- Fortran -------------------------------------------------------------
+"-- General --
+    au BufEnter *.f,*.f77 set textwidth=72
+    au BufEnter *.f,*.f77 set colorcolumn=6,+1
+    au BufEnter *.f,*.f77 set softtabstop=6
+    au BufEnter *.f,*.f77 set shiftwidth=6
+    au BufEnter *.f,*.f77 set nosmartindent
+    au BufEnter *.f,*.f77 set nosmarttab
+    au BufEnter *.f,*.f77 set noautoindent
+
+    au BufLeave *.f,*.f77 set textwidth=0
+    au BufLeave *.f,*.f77 set colorcolumn=""
+    au BufLeave *.f,*.f77 set softtabstop=4
+    au BufLeave *.f,*.f77 set shiftwidth=4
+    au BufLeave *.f,*.f77 set smartindent
+    au BufLeave *.f,*.f77 set smarttab
+    au BufLeave *.f,*.f77 set autoindent
+
+"-- Snippets --
+
+"- LaTeX ---------------------------------------------------------------
+"-- General --
+  " Autocomplete \begin \end for LaTeX
+    au BufReadPost,BufNewFile *.tex nmap <leader>\ Yp0lceend<ESC>ko
+"-- Snippets --
+
+
+"= 3.Pluginstuff =========================================================
+  " Vimwiki config
+    au FileType vimwiki setlocal shiftwidth=4 tabstop=4
+  " For automakeing dots at the bottom indicating location
+    let g:vimwikilist = []
+    function VimwikiBufCheck()
+	if len(g:vimwikilist) > 1
+	    if g:vimwikilist[-2] == expand('%:t:r')
+	        let g:vimwikilist = g:vimwikilist[0:-3]
+	    endif
+	endif
+    endfunction
+    au BufLeave *.wiki call add(g:vimwikilist,expand('%:t:r'))
+    au BufEnter *.wiki call VimwikiBufCheck()
+    au BufNewFile *.wiki call append('$', ["", "[[" . join(g:vimwikilist, "|.]][[") . "|.]]."])
+    command VimwikiAddDots call append('$', ["", "[[" . join(g:vimwikilist, "|.]][[") . "|.]]."])
+  " Goyo height
+    let g:goyo_height=90
+  " Goyo plugin to make text readable
+    map <leader>g :Goyo \| set linebreak\| set relativenumber\| set number<CR>
+
+"= Cross-Platform Stuff ================================================
+  " Because I hate rewriting .vimrc every single time it's a mess...
     function! WhichEnv() abort
 	if exists('g:env')
 	    return
@@ -35,232 +210,129 @@
 	endif
     endfunction
     call WhichEnv()
+"- MacOS ---------------------------------------------------------------
+    "- General -
+    if (g:env =~# 'DARWIN')
+        let g:dotvim='$HOME/.vim'
+        set guifont=InconsolataLGC:h12    " font on gui
 
-"= Global ==============================================================
-"-- General ------------------------------------------------------------
-    set nocompatible
-    filetype plugin on
-    syntax on
-    set linespace=0                   " font space size
-    set encoding=utf-8                " encoding
-    set number relativenumber         " sets numbers on left
-    set backspace=2
-    set backspace=indent,eol,start
-    set shiftwidth=4
-    set autoindent
-    set smartindent
-    set smarttab
-    set softtabstop=4
-    if has("gui_running")             " colorschemes
-	colo Chester                  " gui colour
-        au BufReadPost,BufNewFile *.tex,*.bib colo TeXdarktheme
-	au BufReadPost,BufNewFile *.tex,*.bib set wrap linebreak
-        command Tex colo TeXdarktheme
-        command Kod colo Chester
-    else
-       colo vividchalk                " terminal colour
-    endif
+    "- Mapping -
+    " Run comp.sh to compile the program
+        map <leader>c :w! \| term ./Tools/comp.sh %<CR>
+    " The autocompletation stuff (Insert Mode, Needs to be in polish-pro)
+        imap £ <C-j>
+        imap § <C-n>
+    " Terminal for <leader> + t
+        map <leader>t :ter<CR>
 
-"-- Mappings -----------------------------------------------------------
-
-" To keep my hands still healthy
-    noremap ; :
-    map ;; ;
-
-" Make easy access to ~/.vimrc
-    nnoremap <C-^> :e $MYVIMRC<CR>
-
-" Shortcuts split navigation (Normal Mode only)
-    nmap <C-h> <C-w>h
-    nmap <C-j> <C-w>j
-    nmap <C-k> <C-w>k
-    nmap <C-l> <C-w>l
-
-" Resize split screen (Visual Mode only)
-    vmap <C-h> <C-w><
-    vmap <C-j> <C-w>+
-    vmap <C-k> <C-w>-
-    vmap <C-l> <C-w>>
-
-" File manager opener
-    nnoremap <leader>e :Explore <CR>
-    map <leader>fm :Vexplore <CR>
-
-" Toggle 72 character line by pressing <leader> + l
-    nnoremap <leader>l :execute "set colorcolumn=" . (&colorcolumn == "" ? "73" : "")<CR>
-
-" Spell-check set to <leader> + o, 'o' for 'Orthography'
-    map <leader>oe :setlocal spell! spelllang=en_gb<CR>
-    map <leader>op :setlocal spell! spelllang=pl<CR>
-
-" Paste from clipboard
-    map <leader>p "+p
-
-" Copy to clipboard
-    vnoremap <leader>y "+y
-    vnoremap <leader> c<ESC>"+p
-    imap <C-v> <ESC>"+pa
-
-" Auto closing brackets "
-    inoremap [ []<left>
-    inoremap { {}<left>
-    inoremap ' ''<left>
-    inoremap " ""<left>
-
-" Goyo plugin to make text readable
-    map <leader>g :Goyo \| set linebreak\| set relativenumber\| set number<CR>
-    let g:goyo_height=90
+    "- Other Settings -
+    " TeX and LaTeX stuff
+        au BufReadPost,BufNewFile *.tex nmap <leader>t :w <bar> exe
+		    \ "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'"<CR><CR>
+        au BufReadPost,BufNewFile *.tex nmap <leader>b :exe
+		    \ "!bibtex '%:p:r.aux'"<CR><CR>
+        au BufReadPost,BufNewFile *.tex nmap <leader>r :exe
+		    \ "!skim '%:p:r.pdf' &"<CR><CR>
+        au BufReadPost,BufNewFile *.tex nmap <leader>c :w <bar> exe
+		    \ "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';skim '%:p:r.pdf'&"<CR><CR>
+        au BufReadPost,BufNewFile *.tex nmap <leader>d :exe
+		    \ "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
+        au BufReadPost,BufNewFile *.tex command TC :!texcount "%:p"
+        au BufReadPost,BufNewFile *.tex inoremap $ $$<left>
 
 
-"-- Other Settings -----------------------------------------------------
+    "= Windows =============================================================
+    elseif (g:env =~# 'WINDOWS')
+    "- General -
+        let g:dotvim='$HOME/vimfiles'
+        set makeprg=wsl.exe\ -e\ bmake\ $*\ $*
+        set guifont=InconsolataLGC:h11    " font on gui
+        set pythonthreedll=python39.dll
+        if has("gui_running")             " colorschemes
+    	set lines=42 columns=81
+    	set guioptions=
+    	set renderoptions=type:directx
+        endif
 
-" To prevent moving cursor when Esc is pressed
-    inoremap <silent> <Esc> <C-O>:stopinsert<CR>
+    "- Mappings -
+    " The autocompletion stuff
+        imap ¬ `
+        imap ` <C-n>
+        " Disable these keys. I have seen too many help pages...
+        for key in ['<F1>', '<F15>']  " add keys to disable here
+    	exec 'cnoremap' key '<Nop>'
+        	exec 'inoremap' key '<Nop>'
+        	exec 'nnoremap' key '<Nop>'
+        	exec 'vnoremap' key '<Nop>'
+        endfor
+    " Terminal for <leader> + t
+        map <leader>t :ter powershell<CR>
 
-" Autocomplitation
-    set tags+=~/.vim/systags
-    set wildmode=longest,list,full
-    autocmd FileType * setlocal omnifunc=syntaxcomplete#Complete
-    set completeopt=menuone
-    set shortmess+=c
-
-" Disable autocommenting
-    au FileType * setl formatoptions-=c formatoptions-=r formatoptions-=o
-
-" Splits open at the bottom and right, which is non-retarded
-    set splitbelow splitright
-
-" Automatically deletes all traling whitespaces
-    au BufWritePre * %s/\s\+$//e
-
-" Fuzzy file finder(ish)
-    set path+=**
-
-" file browsing
-    let g:netrw_banner=0        " disable annoying banner
-    let g:netrw_browse_split=0  " open in prior window
-    let g:netrw_altv=1          " open splits to the right
-    let g:netrw_liststyle=3     " tree view
-    let g:netrw_list_hide=netrw_gitignore#Hide()
-    let g:netrw_list_hide.=',\(^\|\s\s\)\zs\.\S\+'
-
-" Rel[oad] new .vimrc
-    command Rel execute "so $MYVIMRC"
-
-" Autocomplete \begin \end for LaTeX
-    au BufReadPost,BufNewFile *.tex nmap <leader>\ Yp0lceend<ESC>ko
+    "-- Other Settings -----------------------------------------------------
+    " Vimwiki directory
+        let g:vimwiki_list = [{'path': '~/vimfiles/vimwiki/', 'syntax': 'default'}]
+    " TeX and LaTeX stuff
+        au BufReadPost,BufNewFile *.tex nmap <leader>t :w <bar> !start
+		    \ cmd /c pdflatex -aux-directory="%:p:h"
+		    \ -output-directory="%:p:h" "%:p" & taskkill /IM
+		    \ "mupdf.exe" & mupdf -C D0C8B5 "%:p:r.pdf"<CR><CR>
+        au BufReadPost,BufNewFile *.tex nmap <leader>b :!start cmd /c
+		    \ bibtex "%:p:r.aux"<CR><CR>
+        au BufReadPost,BufNewFile *.tex nmap <leader>r :!start cmd /c
+		    \ taskkill /IM "mupdf.exe" & mupdf -C D0C8B5
+		    \ "%:p:r.pdf"<CR><CR>
+        au BufReadPost,BufNewFile *.tex nmap <leader>c :w <bar> !start
+		    \ cmd /c pdflatex -aux-directory="%:p:h"
+		    \ -output-directory="%:p:h" "%:p" & bibtex
+		    \ "%:p:r.aux" & pdflatex -aux-directory="%:p:h"
+		    \ -output-directory="%:p:h" "%:p" & pdflatex
+		    \ -aux-directory="%:p:h" -output-directory="%:p:h"
+		    \ "%:p" & taskkill /IM "mupdf.exe" & mupdf -C D0C8B5
+		    \ "%:p:r.pdf"<CR><CR>
+        au BufReadPost,BufNewFile *.tex nmap <leader>d :!start cmd /c
+		    \ del "%:p:r.aux" & del "%:p:r.bbl" & del "%:p:r.blg"
+		    \ & del "%:p:r.lof" & del "%:p:r.log" &
+		    \ del "%:p:r.lot" & del "%:p:r.out" &
+		    \ del "%:p:r.synctex.gz" & del "%:p:r.toc"<CR><CR>
+        au BufReadPost,BufNewFile *.tex command TC :!texcount "%:p"
+        au BufReadPost,BufNewFile *.tex inoremap $ $$<left>
 
 
-"= Macos ===============================================================
-"-- General ------------------------------------------------------------
-if (g:env =~# 'DARWIN')
-    set guifont=InconsolataLGC:h12    " font on gui
-    if !has("gui_running")            " colorschemes
-       colo vividchalk                " terminal colour
+    "= Linux ==============================================================
+    elseif (g:env =~# 'LINUX')
+    "-- General ------------------------------------------------------------
+        let g:dotvim='$HOME/.vim'
+        set guifont=Inconsolata\ LGC\ Medium\ 10
+        if has("gui_running")             " colorschemes
+           set lines=55 columns=81
+           set guioptions=
+        endif
+    " Terminal for <leader> + t
+        map <leader>t :ter<CR>
+
+    "-- Mappings -----------------------------------------------------------
+        imap ¬ `
+        imap ` <C-n>
+
+    "-- Other Settings -----------------------------------------------------
+    " Vimwiki directory
+        let g:vimwiki_list = [{'path': '~/vim/vimwiki/', 'syntax': 'default'}]
+    " TeX and LaTeX stuff
+        au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>t :w <bar> exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'"<CR><CR>
+        au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>b :exe "!bibtex '%:p:r.aux'"<CR><CR>
+        au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>r :exe "!xpdf '%:p:r.pdf' &"<CR><CR>
+        au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>c :w <bar> exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';xpdf '%:p:r.pdf'&"<CR><CR>
+        au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>d :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
+        au BufReadPost,BufNewFile *.tex command TC :!texcount "%:p"
+        au BufReadPost,BufNewFile *.tex inoremap $ $$<left>
+
+
+    "= BSD =================================================================
     endif
 
 
-"-- Mappings -----------------------------------------------------------
-" Run comp.sh to compile the program
-    map <leader>c :w! \| term ./Tools/comp.sh %<CR>
-" The autocompletation stuff (Insert Mode, Needs to be in polish-pro)
-    imap £ <C-j>
-    imap § <C-x><C-O>
-" Terminal for <leader> + t
-    map <leader>t :ter<CR>
-
-"-- Other Settings -----------------------------------------------------
-" TeX and LaTeX stuff
-    au BufReadPost,BufNewFile *.tex nmap <leader>t :w <bar> exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'"<CR><CR>
-    au BufReadPost,BufNewFile *.tex nmap <leader>b :exe "!bibtex '%:p:r.aux'"<CR><CR>
-    au BufReadPost,BufNewFile *.tex nmap <leader>r :exe "!skim '%:p:r.pdf' &"<CR><CR>
-    au BufReadPost,BufNewFile *.tex nmap <leader>c :w <bar> exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';skim '%:p:r.pdf'&"<CR><CR>
-    au BufReadPost,BufNewFile *.tex nmap <leader>d :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
-    au BufReadPost,BufNewFile *.tex command TC :!texcount "%:p"
-    au BufReadPost,BufNewFile *.tex inoremap $ $$<left>
-    au BufReadPost,BufNewFile *.tex inoremap { []<left>
-    au BufReadPost,BufNewFile *.tex inoremap [ {}<left>
-
-
-"= Binbows =============================================================
-elseif (g:env =~# 'WINDOWS')
-"-- General ------------------------------------------------------------
-    set guifont=InconsolataLGC:h11    " font on gui
-    set pythonthreedll=python39.dll
-    if has("gui_running")             " colorschemes
-	set lines=42 columns=81
-	set guioptions=
-    else
-	colo vividchalk                " terminal colour
-    endif
-
-"-- Mappings -----------------------------------------------------------
-" The autocompletion stuff
-    imap ¬ <C-j>
-    imap ` <C-x><C-O>
-    " Disable these keys. I have seen too many help pages...
-    for key in ['<F1>', '<F15>']  " add keys to disable here
-	exec 'cnoremap' key '<Nop>'
-    	exec 'inoremap' key '<Nop>'
-    	exec 'nnoremap' key '<Nop>'
-    	exec 'vnoremap' key '<Nop>'
-    endfor
-" Terminal for <leader> + t
-    map <leader>t :ter powershell<CR>
-
-"-- Other Settings -----------------------------------------------------
-" TeX and LaTeX stuff
-    au BufReadPost,BufNewFile *.tex nmap <leader>t :w <bar> !start cmd /c pdflatex -aux-directory="%:p:h" -output-directory="%:p:h" "%:p" & taskkill /IM "mupdf.exe" & mupdf -C D0C8B5 "%:p:r.pdf"<CR><CR>
-    au BufReadPost,BufNewFile *.tex nmap <leader>b :!start cmd /c bibtex "%:p:r.aux"<CR><CR>
-    au BufReadPost,BufNewFile *.tex nmap <leader>r :!start cmd /c taskkill /IM "mupdf.exe" & mupdf -C D0C8B5 "%:p:r.pdf"<CR><CR>
-    au BufReadPost,BufNewFile *.tex nmap <leader>c :w <bar> !start cmd /c pdflatex -aux-directory="%:p:h" -output-directory="%:p:h" "%:p" & bibtex "%:p:r.aux" & pdflatex -aux-directory="%:p:h" -output-directory="%:p:h" "%:p" & pdflatex -aux-directory="%:p:h" -output-directory="%:p:h" "%:p" & taskkill /IM "mupdf.exe" & mupdf -C D0C8B5 "%:p:r.pdf"<CR><CR>
-    au BufReadPost,BufNewFile *.tex nmap <leader>d :!start cmd /c del "%:p:r.aux" & del "%:p:r.bbl" & del "%:p:r.blg" & del "%:p:r.lof" & del "%:p:r.log" & del "%:p:r.lot" & del "%:p:r.out" & del "%:p:r.synctex.gz" & del "%:p:r.toc"<CR><CR>
-    au BufReadPost,BufNewFile *.tex command TC :!texcount "%:p"
-    au BufReadPost,BufNewFile *.tex inoremap $ $$<left>
-    au BufReadPost,BufNewFile *.tex inoremap { []<left>
-    au BufReadPost,BufNewFile *.tex inoremap [ {}<left>
-
-"= Linux ===============================================================
-elseif (g:env =~# 'LINUX')
-"-- General ------------------------------------------------------------
-    set guifont=Inconsolata\ LGC\ Medium\ 10
-    if has("gui_running")             " colorschemes
-       set lines=55 columns=81
-       set guioptions=
-    else
-       colo default                " terminal colour
-    endif
-" Terminal for <leader> + t
-    map <leader>t :ter<CR>
-
-"-- Mappings -----------------------------------------------------------
-    imap ¬ <C-j>
-    imap ` <C-x><C-O>
-
-"-- Other Settings -----------------------------------------------------
-" TeX and LaTeX stuff
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>t :w <bar> exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'"<CR><CR>
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>b :exe "!bibtex '%:p:r.aux'"<CR><CR>
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>r :exe "!xpdf '%:p:r.pdf' &"<CR><CR>
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>c :w <bar> exe "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';xpdf '%:p:r.pdf'&"<CR><CR>
-    au BufReadPost,BufNewFile,BufWritePost *.tex nmap <leader>d :exe "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
-    au BufReadPost,BufNewFile *.tex command TC :!texcount "%:p"
-    au BufReadPost,BufNewFile *.tex inoremap $ $$<left>
-    au BufReadPost,BufNewFile *.tex inoremap { []<left>
-    au BufReadPost,BufNewFile *.tex inoremap [ {}<left>
-
-
-"= BSD =================================================================
-
-endif
-"= Pluginstuff =========================================================
-" Vimwiki
-    let g:vimwiki_list = [{'path': '~/Tools/vim/vimwiki/', 'syntax': 'markdown'}]
-    au FileType vimwiki setlocal shiftwidth=3 tabstop=3 noexpandtab
-
-
-"= STATUSLINE ==========================================================
-" This is the code behind my glorious statusline
+"= 5.Status Line =======================================================
+  " This is the code behind my glorious statusline
     let g:currentmode={
 	\ 'n'      : 'NORMAL ',
 	\ 'no'     : 'N·O•PE ',
@@ -282,8 +354,7 @@ endif
 	\ '!'      : 'SH•CMD ',
 	\ 't'      : 'TERMINAL '
 	\}
-
-" Automatically change the statusline color depending on mode
+  " Automatically change the statusline color depending on mode
     function! ChangeStatuslineColor()
 	if (mode() =~# '\v(n|no)')
 	    exe 'hi! StatusLine ctermbg=002 ctermfg=015 guibg=green4 guifg=white'
@@ -300,8 +371,7 @@ endif
 	endif
 	return ''
     endfunction
-
-" Find out current buffer's size and output it
+  " Find out current buffer's size and output it
     function! FileSize()
       let bytes = getfsize(expand('%:p'))
       if (bytes >= 1024)
@@ -345,6 +415,6 @@ endif
     set statusline+=\ %3p%%\            " percentage
     set noshowmode
 
-" statusline on and off
-    map <leader>bs :so ~/.vimrc<CR>
+  " statusline off
     map <leader>bh :set laststatus=0 \| set showmode \| set ruler<CR>
+
