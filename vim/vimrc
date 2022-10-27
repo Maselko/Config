@@ -11,11 +11,13 @@
 "   - Plugins
 "   - General
 "   - Mappings
-" 2. Filetype Dependent & Snippets
-" 3. Plugin stuff
-" 4. Platform Dependent
-" 5. Statusbar
+" 2. Filetype Dependent
+" 3. Snippets
+" 4. Plugin stuff
+" 5. Platform Dependent
+" 6. Statusbar
 "
+
 "= 1.Global ============================================================
     let mapleader = " "
     language en_GB.UTF-8
@@ -52,7 +54,7 @@
         command Tex colo TeXdarktheme
         command Kod colo Chester
     else
-       colo delek			" terminal colour
+        colo delek			" terminal colour
     endif
   " Autocomplitation
     set tags+=~/.vim/systags
@@ -148,9 +150,9 @@
   " Save folding information
     nmap zw :mkview
 
-"= 2.Filetype Dependent & Snippets =====================================
+"= 2.Filetype Dependent ================================================
 "- Fortran -------------------------------------------------------------
-"-- General --
+  "-- General --
     au BufEnter *.f,*.f77 set textwidth=72
     au BufEnter *.f,*.f77 set colorcolumn=6,+1
     au BufEnter *.f,*.f77 set softtabstop=6
@@ -166,17 +168,36 @@
     au BufLeave *.f,*.f77 set smartindent
     au BufLeave *.f,*.f77 set smarttab
     au BufLeave *.f,*.f77 set autoindent
-
-"-- Snippets --
-
-"- LaTeX ---------------------------------------------------------------
-"-- General --
   " Autocomplete \begin \end for LaTeX
-    au BufReadPost,BufNewFile *.tex nmap <leader>\ Yp0lceend<ESC>ko
-"-- Snippets --
+    au BufReadPost,BufNewFile *.f90 nmap <leader>\ YpIend <ESC>k$
+"- LaTeX ---------------------------------------------------------------
+  "-- General --
+  " Autocomplete \begin \end for LaTeX
+    au BufReadPost,BufNewFile *.tex nmap <leader>\ Yp^lceend<ESC>ko
 
 
-"= 3.Pluginstuff =========================================================
+"= 3.Snippets ==========================================================
+"- Fortran -------------------------------------------------------------
+    au BufEnter *.f90 nnoremap ,prog :-1read
+		\$HOME/.vim/snippets/fortran/prog.f90<CR>2jo
+    au BufEnter *.f90 nnoremap ,mod :-1read
+		\$HOME/.vim/snippets/fortran/mod.f90<CR>2jo
+"- LaTeX ---------------------------------------------------------------
+    au BufEnter *.tex nnoremap ,report :-1read
+		\$HOME/.vim/snippets/latex/report.tex<CR>30jWi
+"- Makefile ------------------------------------------------------------
+    au BufEnter Makefile nnoremap ,f :-1read
+		\$HOME/.vim/snippets/Makefile/fortran.py<CR>30jWi
+    au BufEnter Makefile nnoremap ,c :-1read
+		\$HOME/.vim/snippets/Makefile/c.py<CR>30jWi
+    au BufEnter Makefile nnoremap ,tex :-1read
+		\$HOME/.vim/snippets/Makefile/tex.py<CR>30jWi
+"- Python --------------------------------------------------------------
+    au BufEnter *.py nnoremap ,temp :-1read
+		\$HOME/.vim/snippets/python/template.py<CR>30jWi
+
+
+"= 4.Pluginstuff =======================================================
   " Vimwiki config
     au FileType vimwiki setlocal shiftwidth=4 tabstop=4
   " For automakeing dots at the bottom indicating location
@@ -197,7 +218,8 @@
   " Goyo plugin to make text readable
     map <leader>g :Goyo \| set linebreak\| set relativenumber\| set number<CR>
 
-"= Cross-Platform Stuff ================================================
+
+"= 5.Cross-Platform Stuff ==============================================
   " Because I hate rewriting .vimrc every single time it's a mess...
     function! WhichEnv() abort
 	if exists('g:env')
@@ -210,22 +232,21 @@
 	endif
     endfunction
     call WhichEnv()
+
+
 "- MacOS ---------------------------------------------------------------
-    "- General -
+  "- General -
     if (g:env =~# 'DARWIN')
-        let g:dotvim='$HOME/.vim'
         set guifont=InconsolataLGC:h12    " font on gui
 
-    "- Mapping -
-    " Run comp.sh to compile the program
-        map <leader>c :w! \| term ./Tools/comp.sh %<CR>
+  "- Mappings -
     " The autocompletation stuff (Insert Mode, Needs to be in polish-pro)
         imap £ <C-j>
         imap § <C-n>
     " Terminal for <leader> + t
         map <leader>t :ter<CR>
 
-    "- Other Settings -
+  "- Other Settings -
     " TeX and LaTeX stuff
         au BufReadPost,BufNewFile *.tex nmap <leader>t :w <bar> exe
 		    \ "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p'"<CR><CR>
@@ -234,18 +255,20 @@
         au BufReadPost,BufNewFile *.tex nmap <leader>r :exe
 		    \ "!skim '%:p:r.pdf' &"<CR><CR>
         au BufReadPost,BufNewFile *.tex nmap <leader>c :w <bar> exe
-		    \ "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';skim '%:p:r.pdf'&"<CR><CR>
+		    \ "!pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';
+		    \bibtex '%:p:r.aux';pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';
+		    \pdflatex -aux-directory='%:p:h' -output-directory='%:p:h' '%:p';
+		    \skim '%:p:r.pdf'&"<CR><CR>
         au BufReadPost,BufNewFile *.tex nmap <leader>d :exe
 		    \ "!rm '%:p:r.log' & rm '%:p:r.aux' & rm '%:p:r.bbl' & rm '%:p:r.blg' & rm '%:p:r.synctex.gz'"<CR><CR>
         au BufReadPost,BufNewFile *.tex command TC :!texcount "%:p"
         au BufReadPost,BufNewFile *.tex inoremap $ $$<left>
 
-
-    "= Windows =============================================================
+"- Windows -------------------------------------------------------------
     elseif (g:env =~# 'WINDOWS')
-    "- General -
-        let g:dotvim='$HOME/vimfiles'
+  "- General -
         set makeprg=wsl.exe\ -e\ bmake\ $*\ $*
+        au BufReadPost,BufNewFile *.tex set makeprg=gmake
         set guifont=InconsolataLGC:h11    " font on gui
         set pythonthreedll=python39.dll
         if has("gui_running")             " colorschemes
@@ -254,7 +277,7 @@
     	set renderoptions=type:directx
         endif
 
-    "- Mappings -
+  "- Mappings -
     " The autocompletion stuff
         imap ¬ `
         imap ` <C-n>
@@ -268,9 +291,10 @@
     " Terminal for <leader> + t
         map <leader>t :ter powershell<CR>
 
-    "-- Other Settings -----------------------------------------------------
+  "- Other Settings -
     " Vimwiki directory
-        let g:vimwiki_list = [{'path': '~/vimfiles/vimwiki/', 'syntax': 'default'}]
+        let g:vimwiki_list = [{'path': '~/vimfiles/vimwiki/',
+		    \'syntax': 'default'}]
     " TeX and LaTeX stuff
         au BufReadPost,BufNewFile *.tex nmap <leader>t :w <bar> !start
 		    \ cmd /c pdflatex -aux-directory="%:p:h"
@@ -297,11 +321,9 @@
         au BufReadPost,BufNewFile *.tex command TC :!texcount "%:p"
         au BufReadPost,BufNewFile *.tex inoremap $ $$<left>
 
-
-    "= Linux ==============================================================
+"- Linux ---------------------------------------------------------------
     elseif (g:env =~# 'LINUX')
-    "-- General ------------------------------------------------------------
-        let g:dotvim='$HOME/.vim'
+  "- General -
         set guifont=Inconsolata\ LGC\ Medium\ 10
         if has("gui_running")             " colorschemes
            set lines=55 columns=81
@@ -310,11 +332,11 @@
     " Terminal for <leader> + t
         map <leader>t :ter<CR>
 
-    "-- Mappings -----------------------------------------------------------
+  "- Mappings -
         imap ¬ `
         imap ` <C-n>
 
-    "-- Other Settings -----------------------------------------------------
+  "- Other Settings -
     " Vimwiki directory
         let g:vimwiki_list = [{'path': '~/vim/vimwiki/', 'syntax': 'default'}]
     " TeX and LaTeX stuff
@@ -326,12 +348,11 @@
         au BufReadPost,BufNewFile *.tex command TC :!texcount "%:p"
         au BufReadPost,BufNewFile *.tex inoremap $ $$<left>
 
-
-    "= BSD =================================================================
+"- BSD -----------------------------------------------------------------
     endif
 
 
-"= 5.Status Line =======================================================
+"= 6.Status Line =======================================================
   " This is the code behind my glorious statusline
     let g:currentmode={
 	\ 'n'      : 'NORMAL ',
